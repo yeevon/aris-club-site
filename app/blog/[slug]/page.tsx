@@ -5,10 +5,11 @@ import Link from "next/link";
 import { getBlogPost, getAllBlogSlugs } from "@/lib/blog";
 
 interface BlogPostPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
+
 
 export async function generateStaticParams() {
   const slugs = await getAllBlogSlugs();
@@ -16,13 +17,12 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(
-  { params }: BlogPostPageProps
+  props: BlogPostPageProps
 ): Promise<Metadata> {
-  const post = await getBlogPost(params.slug);
+  const { slug } = await props.params;
+  const post = await getBlogPost(slug);
 
-  if (!post) {
-    return { title: "Post Not Found" };
-  }
+  if (!post) return { title: "Post Not Found" };
 
   const desc = post.excerpt || post.content.substring(0, 160);
 
@@ -40,12 +40,11 @@ export async function generateMetadata(
   };
 }
 
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = await getBlogPost(params.slug);
+export default async function BlogPostPage(props: BlogPostPageProps) {
+  const { slug } = await props.params;
+  const post = await getBlogPost(slug);
 
-  if (!post) {
-    notFound();
-  }
+  if (!post) notFound();
 
   return (
     <article className="min-h-screen bg-white">
