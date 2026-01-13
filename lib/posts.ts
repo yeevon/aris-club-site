@@ -23,7 +23,7 @@ export interface Post {
 const POSTS_DIRECTORY = path.join(process.cwd(), 'posts');
 
 /**
- * Get all blog posts from the content/posts directory
+ * Get all blog posts from the posts directory
  */
 export async function getAllPosts(): Promise<Post[]> {
   if (!fs.existsSync(POSTS_DIRECTORY)) {
