@@ -1,52 +1,46 @@
-import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
-import Link from 'next/link';
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import Link from "next/link";
 
-// Import your blog data source (adjust based on your setup)
-// This could be from a CMS, database, or static files
-import { getBlogPost, getAllBlogSlugs } from '@/lib/blog';
+import { getBlogPost, getAllBlogSlugs } from "@/lib/blog";
 
 interface BlogPostPageProps {
-  params: Promise<{
+  params: {
     slug: string;
-  }>;
+  };
 }
 
 export async function generateStaticParams() {
   const slugs = await getAllBlogSlugs();
-  return slugs.map((slug) => ({
-    slug,
-  }));
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata(
-  props: BlogPostPageProps
+  { params }: BlogPostPageProps
 ): Promise<Metadata> {
-  const params = await props.params;
   const post = await getBlogPost(params.slug);
 
   if (!post) {
-    return {
-      title: 'Post Not Found',
-    };
+    return { title: "Post Not Found" };
   }
+
+  const desc = post.excerpt || post.content.substring(0, 160);
 
   return {
     title: post.title,
-    description: post.excerpt || post.content.substring(0, 160),
+    description: desc,
     authors: post.author ? [{ name: post.author }] : undefined,
     openGraph: {
       title: post.title,
-      description: post.excerpt || post.content.substring(0, 160),
-      type: 'article',
+      description: desc,
+      type: "article",
       publishedTime: post.publishedAt,
       authors: post.author ? [post.author] : undefined,
     },
   };
 }
 
-export default async function BlogPostPage(props: BlogPostPageProps) {
-  const params = await props.params;
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const post = await getBlogPost(params.slug);
 
   if (!post) {
@@ -87,17 +81,15 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
 
             {post.publishedAt && (
               <time dateTime={post.publishedAt}>
-                {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
+                {new Date(post.publishedAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
                 })}
               </time>
             )}
 
-            {post.readingTime && (
-              <span>{post.readingTime} min read</span>
-            )}
+            {post.readingTime && <span>{post.readingTime} min read</span>}
           </div>
 
           {/* Tags */}
@@ -117,7 +109,6 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
 
         {/* Content */}
         <div className="prose prose-lg max-w-none">
-          {/* If storing content as HTML/Markdown, render it here */}
           {post.contentHtml ? (
             <div
               dangerouslySetInnerHTML={{ __html: post.contentHtml }}
@@ -132,20 +123,14 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
 
         {/* Footer */}
         <footer className="mt-12 border-t border-gray-200 pt-8">
-          <div className="flex items-center justify-between">
-            <div>
-              {post.author && (
-                <div className="mb-2">
-                  <p className="font-semibold text-gray-900">
-                    About {post.author}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {post.authorBio || 'Software developer and content creator.'}
-                  </p>
-                </div>
-              )}
+          {post.author && (
+            <div className="mb-6">
+              <p className="font-semibold text-gray-900">About {post.author}</p>
+              <p className="text-sm text-gray-600">
+                {post.authorBio || "Aris Club contributor."}
+              </p>
             </div>
-          </div>
+          )}
 
           {/* Related Posts Navigation */}
           <nav className="mt-8 flex justify-between">
