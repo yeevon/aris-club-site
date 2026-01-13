@@ -20,7 +20,7 @@ export interface Post {
   html: string;
 }
 
-const POSTS_DIRECTORY = path.join(process.cwd(), 'content/posts');
+const POSTS_DIRECTORY = path.join(process.cwd(), 'posts');
 
 /**
  * Get all blog posts from the content/posts directory
